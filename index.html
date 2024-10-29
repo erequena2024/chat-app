@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+   <meta charset="UTF-8">
+   <title>Chat en Tiempo Real</title>
+   <style>
+      #chat {
+         max-width: 500px;
+         margin: 0 auto;
+         font-family: Arial, sans-serif;
+      }
+      #mensajes {
+         border: 1px solid #ccc;
+         height: 300px;
+         overflow-y: scroll;
+         padding: 10px;
+         margin-bottom: 10px;
+      }
+      #mensaje {
+         width: 80%;
+      }
+      #escribiendo {
+         font-size: 0.9em;
+         color: #888;
+      }
+   </style>
+</head>
+<body>
+   <div id="chat">
+      <div id="mensajes"></div>
+      <input type="text" id="mensaje" placeholder="Escribe tu mensaje" oninput="indicadorEscribiendo()">
+      <button onclick="enviarMensaje()">Enviar</button>
+      <div id="escribiendo"></div>
+   </div>
+
+   <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+   <script>
+      const socket = io();
+
+      socket.on("mensaje", (mensaje) => {
+         const divMensajes = document.getElementById("mensajes");
+         const nuevoMensaje = document.createElement("div");
+         nuevoMensaje.textContent = mensaje;
+         divMensajes.appendChild(nuevoMensaje);
+         document.getElementById("escribiendo").textContent = "";
+      });
+
+      socket.on("escribiendo", (nombre) => {
+         document.getElementById("escribiendo").textContent = `${nombre} está escribiendo...`;
+      });
+
+      function enviarMensaje() {
+         const inputMensaje = document.getElementById("mensaje");
+         const mensaje = inputMensaje.value;
+         socket.emit("mensaje", mensaje);
+         inputMensaje.value = "";
+      }
+
+      function indicadorEscribiendo() {
+         socket.emit("escribiendo", "Usuario"); // Puedes reemplazar "Usuario" con un nombre
+      }
+   </script>
+</body>
+</html>
